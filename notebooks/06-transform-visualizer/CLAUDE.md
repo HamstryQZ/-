@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Python 3 + Streamlit
 - NumPy (FFT 数值频谱)
-- Matplotlib (时域波形、频谱图、零极点图)
+- Plotly (交互式矢量图：拖拽、缩放、悬停)
 
 ## 代码结构
 
