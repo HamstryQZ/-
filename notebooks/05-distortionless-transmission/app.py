@@ -15,20 +15,38 @@ import matplotlib.font_manager as fm
 
 st.set_page_config(page_title="无失真传输条件 - 交互式实验", layout="wide")
 
-# 中文字体配置（先清除字体缓存，避免旧缓存找不到中文字体）
+# 中文字体配置（交叉兼容 Windows / Linux / macOS）
 import os
 import matplotlib
-_cache_dir = matplotlib.get_cachedir()
-for _f in os.listdir(_cache_dir):
-    if 'font' in _f.lower():
-        os.remove(os.path.join(_cache_dir, _f))
-fm._load_fontmanager(try_read_cache=False)
 
-_CN_FONTS = ['Microsoft YaHei', 'SimHei', 'STXihei']
+# 候选字体名（按平台排列）
+_CN_FONTS = [
+    # Windows
+    'Microsoft YaHei', 'SimHei', 'STXihei', 'DengXian',
+    # Linux（Streamlit Cloud 等）
+    'Noto Sans CJK SC', 'Noto Sans SC', 'Source Han Sans SC',
+    'WenQuanYi Micro Hei', 'WenQuanYi Zen Hei',
+    # macOS
+    'PingFang SC', 'STHeiti', 'Apple LiGothic',
+]
 _AVAILABLE = {f.name for f in fm.fontManager.ttflist}
 _CHOSEN_FONT = next((f for f in _CN_FONTS if f in _AVAILABLE), None)
+
 if _CHOSEN_FONT:
     plt.rcParams['font.sans-serif'] = [_CHOSEN_FONT] + plt.rcParams.get('font.sans-serif', [])
+    plt.rcParams['axes.unicode_minus'] = False
+else:
+    # 回退：下载 Noto Sans SC 字体
+    _FONT_CACHE = os.path.join(os.path.dirname(__file__), '.fonts')
+    os.makedirs(_FONT_CACHE, exist_ok=True)
+    _FONT_PATH = os.path.join(_FONT_CACHE, 'NotoSansSC-Regular.ttf')
+    if not os.path.exists(_FONT_PATH):
+        import urllib.request
+        _url = ("https://github.com/google/fonts/raw/main/"
+                "ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf")
+        urllib.request.urlretrieve(_url, _FONT_PATH)
+    fm.fontManager.addfont(_FONT_PATH)
+    plt.rcParams['font.sans-serif'] = ['Noto Sans SC'] + plt.rcParams.get('font.sans-serif', [])
     plt.rcParams['axes.unicode_minus'] = False
 
 plt.rcParams.update({'figure.dpi': 100, 'font.size': 10, 'axes.titlesize': 12})
