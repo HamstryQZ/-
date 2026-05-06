@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
+notebooks/05-distortionless-transmission/distortionless_transmission.py
+notebooks/05-distortionless-transmission/无失真传输实验.exe
+notebooks/05-distortionless-transmission/build/
