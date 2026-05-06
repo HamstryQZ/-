@@ -34,7 +34,7 @@ SIGNALS = {
         "latex": r"$x(t) = \delta(t)$",
         "causal": True,
         "params": [],
-        "time_func": lambda t, **kw: (np.abs(t) < 1e-10).astype(float),
+        "time_func": lambda t, **kw: np.where(np.abs(t) < np.abs(t[1]-t[0])/2, 1.0/np.abs(t[1]-t[0]), 0.0),
         "ft_latex": r"$X(j\omega) = 1$",
         "ft_has_delta": False,
         "lt_latex": r"$X(s) = 1$",
@@ -293,7 +293,7 @@ def _pole_zero_fig(poles, zeros, roc_text, s_lim):
 # 辅助：生成带参数键的字符串（用于缓存依赖）
 # ============================================================
 def _params_str(params_dict):
-    return ",".join(f"{k}={v:.4f}" for k, v in sorted(params_dict.items()))
+    return ",".join(f"{k}={v:.6g}" for k, v in sorted(params_dict.items()))
 
 
 # ============================================================
@@ -428,9 +428,21 @@ with tabs[1]:
 
     col_left, col_right = st.columns([1, 1])
 
-    valid_idx = np.searchsorted(f_pos, 10) + 1
-    fmax_plot = f_pos[min(valid_idx + 100, len(f_pos) - 1)]
-    fmax_show = min(fmax_plot, f_pos[-1])
+    # Adaptive frequency range: show up to where cumulative energy reaches 99%
+    mag = np.abs(X_pos)
+    peak_mag = np.max(mag)
+    if peak_mag > 1e-12 and len(mag) > 10:
+        cumsum = np.cumsum(mag)
+        fmax_show = f_pos[min(np.searchsorted(cumsum, cumsum[-1] * 0.99), len(f_pos) - 1)]
+        fmax_show = min(max(fmax_show, 5.0), f_pos[-1])
+    else:
+        fmax_show = f_pos[-1]
+
+    # Phase masking: hide phase where magnitude is negligible (<1% of peak)
+    phase_mask_thr = peak_mag * 0.01 if peak_mag > 0 else 0
+    phase = np.angle(X_pos)
+    phase_masked = phase.copy()
+    phase_masked[mag < phase_mask_thr] = None
 
     with col_left:
         mag = np.abs(X_pos)
@@ -446,10 +458,10 @@ with tabs[1]:
         st.plotly_chart(fig, use_container_width=True, config=_plotly_config())
 
     with col_right:
-        phase = np.angle(X_pos)
         fig = _make_plotly_fig(
-            [go.Scatter(x=f_pos, y=phase, mode='lines',
-                        name='∠X(f)', line=dict(color='darkgreen', width=1.8))],
+            [go.Scatter(x=f_pos, y=phase_masked, mode='lines',
+                        name='∠X(f)', line=dict(color='darkgreen', width=1.8),
+                        connectgaps=False)],
             dict(
                 title=dict(text='相位频谱', x=0.5),
                 xaxis=dict(title='频率 (Hz)', range=[0, fmax_show]),
