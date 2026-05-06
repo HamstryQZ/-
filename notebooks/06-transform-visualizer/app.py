@@ -238,10 +238,10 @@ SIGNALS = {
 }
 
 
-def _get_signal(sig_key, params):
+def _get_signal(sig_key, params, t):
     """Generate time-domain signal samples."""
     sig = SIGNALS[sig_key]
-    return sig["time_func"](**params)
+    return sig["time_func"](t, **params)
 
 
 @st.cache_data
@@ -371,7 +371,7 @@ with st.sidebar:
 
 t_resolution = 2000
 t = np.linspace(-t_max, t_max, t_resolution, endpoint=False)
-sig_values = _get_signal(sig_key, params)
+sig_values = _get_signal(sig_key, params, t)
 freq, X_spec = compute_spectrum(sig_key, _params_str(params), t, sig_values)
 
 # Positive frequency range for display
