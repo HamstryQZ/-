@@ -405,6 +405,11 @@ with tabs[0]:
         ax.set_ylabel("x(t)")
         ax.set_title("时域波形")
         ax.grid(True, alpha=0.3)
+        # 因果信号只显示 t>=0 区域
+        if sig["causal"]:
+            ax.set_xlim(-0.5, t_max)
+        else:
+            ax.set_xlim(-t_max, t_max)
         # Auto y-limit with padding
         ymin, ymax = np.min(sig_values), np.max(sig_values)
         ypad = max((ymax - ymin) * 0.15, 0.1)
