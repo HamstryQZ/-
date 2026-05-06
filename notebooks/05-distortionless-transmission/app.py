@@ -15,7 +15,15 @@ import matplotlib.font_manager as fm
 
 st.set_page_config(page_title="无失真传输条件 - 交互式实验", layout="wide")
 
-# 中文字体配置
+# 中文字体配置（先清除字体缓存，避免旧缓存找不到中文字体）
+import os
+import matplotlib
+_cache_dir = matplotlib.get_cachedir()
+for _f in os.listdir(_cache_dir):
+    if 'font' in _f.lower():
+        os.remove(os.path.join(_cache_dir, _f))
+fm._load_fontmanager(try_read_cache=False)
+
 _CN_FONTS = ['Microsoft YaHei', 'SimHei', 'STXihei']
 _AVAILABLE = {f.name for f in fm.fontManager.ttflist}
 _CHOSEN_FONT = next((f for f in _CN_FONTS if f in _AVAILABLE), None)
