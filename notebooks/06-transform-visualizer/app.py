@@ -415,7 +415,7 @@ with tabs[0]:
 
     with col_right:
         st.markdown("**时域表达式**")
-        st.latex(sig["latex"])
+        st.markdown(sig["latex"])
 
         st.markdown("**信号参数**")
         if params:
@@ -433,7 +433,7 @@ with tabs[0]:
 # ============================================================
 with tabs[1]:
     st.markdown("**傅里叶变换表达式**")
-    st.latex(sig["ft_latex"])
+    st.markdown(sig["ft_latex"])
 
     if sig["ft_has_delta"]:
         st.info(
@@ -518,7 +518,7 @@ with tabs[2]:
         )
     else:
         st.markdown("**拉普拉斯变换表达式**")
-        st.latex(sig["lt_latex"])
+        st.markdown(sig["lt_latex"])
 
         col_left, col_right = st.columns([1, 1])
 
@@ -564,7 +564,7 @@ with tabs[2]:
 
         with col_right:
             st.markdown("**收敛域 (ROC)**")
-            st.latex(sig["roc"])
+            st.markdown(sig["roc"])
 
             st.markdown("**零极点信息**")
             if real_poles:
